@@ -9,6 +9,7 @@ const { REACT_APP_API_URL, REACT_APP_API_KEY } = process.env;
 function WeatherContextProvider({ children }) {
   const { setWaiting, setError } = useContext(AppContext);
   const [data, setData] = useState([]);
+  const [city, setCity] = useState([]);
 
   // Este hook carga los datos del tiempo
   useEffect(() => {
@@ -35,8 +36,9 @@ function WeatherContextProvider({ children }) {
 
           const json = await response.json();
 
-          setData(json[0]);
-          console.log(data);
+          setCity(json[0].nombre);
+
+          setData(json[0].prediccion.dia);
         } catch (error) {
           setError(error.message);
         }
@@ -51,7 +53,7 @@ function WeatherContextProvider({ children }) {
   }, [setError, setWaiting]);
 
   return (
-    <WeatherContext.Provider value={{ data }}>
+    <WeatherContext.Provider value={{ data, city }}>
       {children}
     </WeatherContext.Provider>
   );

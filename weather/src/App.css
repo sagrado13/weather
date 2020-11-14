@@ -1,0 +1,13 @@
+ul.weather-list {
+  list-style: none;
+  display: flex;
+}
+
+ul.weather-list li {
+  border: 1px solid black;
+  padding: 0.5rem;
+}
+
+.img-weather {
+  width: 80px;
+}
