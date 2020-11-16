@@ -6,6 +6,7 @@ ul.weather-list {
 ul.weather-list li {
   border: 1px solid black;
   padding: 0.5rem;
+  text-align: center;
 }
 
 .img-weather {
