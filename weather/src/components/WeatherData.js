@@ -3,10 +3,12 @@ import { format } from "date-fns";
 import { Link } from "react-router-dom";
 
 import ImgWeather from "./ImgWeather";
+import Temperature from "./Temperature";
+import RainProbability from "./RainProbability";
 import { WeatherContext } from "../context/WeatherContext";
 
 export default function WeatherData() {
-  const { data, city } = useContext(WeatherContext);
+  const { data, city, dayNow, hourNow } = useContext(WeatherContext);
 
   return (
     <div>
@@ -15,13 +17,17 @@ export default function WeatherData() {
         {data.map((item, index) => {
           return (
             <li key={item.fecha}>
-              <Link to={`/day/${index}`}>
+              <Link className="enlace" to={`/day/${index}`}>
                 <p>{format(new Date(item.fecha), "dd/MM/yyyy")}</p>
 
                 <ImgWeather skyState={item.estadoCielo} />
+                <RainProbability
+                  dayNow={dayNow}
+                  hourNow={hourNow}
+                  rain={item.probPrecipitacion}
+                />
 
-                <p>Temperatura Mínima: {item.temperatura.minima}º</p>
-                <p>Temperatura Máxima: {item.temperatura.maxima}º</p>
+                <Temperature temperature={item.temperatura} />
               </Link>
             </li>
           );

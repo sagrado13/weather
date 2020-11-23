@@ -12,3 +12,8 @@ ul.weather-list li {
 .img-weather {
   width: 80px;
 }
+
+.enlace {
+  text-decoration: none;
+  color: black;
+}

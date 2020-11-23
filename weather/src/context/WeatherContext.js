@@ -2,6 +2,8 @@ import { useState, useEffect, createContext, useContext } from "react";
 
 import { AppContext } from "../context/AppContext";
 
+import { format } from "date-fns";
+
 const WeatherContext = createContext();
 
 const { REACT_APP_API_URL, REACT_APP_API_KEY } = process.env;
@@ -11,7 +13,11 @@ function WeatherContextProvider({ children }) {
   const [data, setData] = useState([]);
   const [city, setCity] = useState([]);
 
-  // Este hook carga los datos del tiempo
+  const now = new Date();
+  const dayNow = format(new Date(now), "dd");
+  const hourNow = format(new Date(now), "HH");
+
+  // Este hook carga los datos del tiempo en Lugo por defecto
   useEffect(() => {
     async function getData() {
       try {
@@ -52,8 +58,48 @@ function WeatherContextProvider({ children }) {
     getData();
   }, [setError, setWaiting]);
 
+  /* Función para cambiar la ciudad */
+  const getCity = async ({ cityCode }) => {
+    try {
+      setWaiting(true);
+
+      const response = await fetch(
+        `${REACT_APP_API_URL}prediccion/especifica/municipio/diaria/${cityCode}/?api_key=${REACT_APP_API_KEY}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Error cargando datos");
+      }
+
+      const json = await response.json();
+      const url = json.datos;
+      try {
+        const response = await fetch(`${url}`);
+
+        if (!response.ok) {
+          throw new Error("Error cargando datos del tiempo");
+        }
+
+        const json = await response.json();
+
+        if (json[0].nombre === "Coru�a, A") {
+          json[0].nombre = "A Coruña";
+        }
+        setCity(json[0].nombre);
+
+        setData(json[0].prediccion.dia);
+      } catch (error) {
+        setError(error.message);
+      }
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setWaiting(false);
+    }
+  };
+
   return (
-    <WeatherContext.Provider value={{ data, city }}>
+    <WeatherContext.Provider value={{ data, city, getCity, dayNow, hourNow }}>
       {children}
     </WeatherContext.Provider>
   );
