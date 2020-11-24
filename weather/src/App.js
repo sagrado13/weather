@@ -5,6 +5,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 import Header from "./components/Header";
 import WeatherData from "./components/WeatherData";
 import WeatherDay from "./components/WeatherDay";
+import Footer from "./components/Footer";
 import { AppError, AppWaiting } from "./components/AppStatus";
 
 function App() {
@@ -25,6 +26,8 @@ function App() {
             </Route>
           </Switch>
         </main>
+
+        <Footer />
       </BrowserRouter>
     </div>
   );

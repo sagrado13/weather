@@ -5,13 +5,17 @@ import { Link } from "react-router-dom";
 import ImgWeather from "./ImgWeather";
 import Temperature from "./Temperature";
 import RainProbability from "./RainProbability";
+import ImgBackground from "./ImgBackground";
 import { WeatherContext } from "../context/WeatherContext";
 
 export default function WeatherData() {
   const { data, city, dayNow, hourNow } = useContext(WeatherContext);
+  const weatherNow = data[0];
+  console.log(data);
 
   return (
     <div>
+      <ImgBackground skyState={weatherNow} hourNow={hourNow} />
       <h3>Previsión para los próximos 7 días en {city}</h3>
       <ul className="weather-list">
         {data.map((item, index) => {
@@ -25,6 +29,7 @@ export default function WeatherData() {
                   dayNow={dayNow}
                   hourNow={hourNow}
                   rain={item.probPrecipitacion}
+                  date={item.fecha}
                 />
 
                 <Temperature temperature={item.temperatura} />

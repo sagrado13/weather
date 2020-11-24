@@ -17,7 +17,7 @@ export default function Header() {
         }}
       >
         <select onChange={(event) => setCityCode(event.target.value)}>
-          <option></option>
+          <option value="27028"></option>
           <option value="15030">A Coruña</option>
           <option value="15036">Ferrol</option>
           <option value="27028">Lugo</option>

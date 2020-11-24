@@ -17,3 +17,9 @@ ul.weather-list li {
   text-decoration: none;
   color: black;
 }
+
+/* FOOTER */
+
+.img-aemet {
+  width: 100px;
+}

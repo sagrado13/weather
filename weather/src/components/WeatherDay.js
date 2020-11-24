@@ -12,8 +12,6 @@ export default function WeatherDay() {
 
   const { id } = useParams();
 
-  console.log(data);
-
   return (
     <div>
       <h3>
