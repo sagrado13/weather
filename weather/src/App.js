@@ -6,6 +6,7 @@ import Header from "./components/Header";
 import WeatherData from "./components/WeatherData";
 import WeatherDay from "./components/WeatherDay";
 import Footer from "./components/Footer";
+
 import { AppError, AppWaiting } from "./components/AppStatus";
 
 function App() {
