@@ -6,13 +6,21 @@ export default function Header() {
   const [nameProvince, setNameProvince] = useState(null);
   const [cityCode, setCityCode] = useState(null);
 
-  const { getCity, cities } = useContext(WeatherContext);
+  const { getCity, cities, location, getLocation } = useContext(WeatherContext);
 
   let lastProvince;
 
+  const [latitude, setLatitude] = useState();
+  const [longitude, setLongitude] = useState();
+  navigator.geolocation.getCurrentPosition((position) => {
+    setLatitude(position.coords.latitude);
+    setLongitude(position.coords.longitude);
+    getLocation({ latitude, longitude });
+  });
+
   return (
     <header>
-      <h1>El tiempo</h1>
+      <h1>El tiempo {location}</h1>
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -24,7 +32,11 @@ export default function Header() {
           {cities.map((city) => {
             if (lastProvince !== city.province) {
               lastProvince = city.province;
-              return <option value={city.province}>{city.province}</option>;
+              return (
+                <option key={city.id} value={city.province}>
+                  {city.province}
+                </option>
+              );
             }
           })}
         </select>
@@ -36,7 +48,11 @@ export default function Header() {
             <option value=""></option>
             {cities.map((city) => {
               if (nameProvince === city.province) {
-                return <option value={city.id}>{city.city}</option>;
+                return (
+                  <option key={city.id} value={city.id}>
+                    {city.city}
+                  </option>
+                );
               }
             })}
           </select>

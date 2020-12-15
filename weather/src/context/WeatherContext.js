@@ -14,6 +14,7 @@ function WeatherContextProvider({ children }) {
   const { setWaiting, setError } = useContext(AppContext);
   const [data, setData] = useState([]);
   const [city, setCity] = useState([]);
+  const [location, setLocation] = useState();
 
   const now = new Date();
   const dayNow = format(new Date(now), "dd");
@@ -29,7 +30,7 @@ function WeatherContextProvider({ children }) {
       try {
         setWaiting(true);
 
-        for (let i = index; i < 99999; i++) {
+        /* for (let i = index; i < 99999; i++) {
           try {
             if (i >= 0 && i < 10) {
               i = "0" + "0" + "0" + "0" + i;
@@ -43,8 +44,6 @@ function WeatherContextProvider({ children }) {
               i = i;
             }
             number++;
-            console.log(i);
-            console.log(number);
 
             if (number === 15) {
               number = 0;
@@ -84,7 +83,7 @@ function WeatherContextProvider({ children }) {
           } catch (error) {
             setError(error.message);
           }
-        }
+        } */
 
         const response = await fetch(
           `${REACT_APP_API_URL}prediccion/especifica/municipio/diaria/27028/?api_key=${REACT_APP_API_KEY}`
@@ -119,12 +118,46 @@ function WeatherContextProvider({ children }) {
         setWaiting(false);
       }
     }
-
     getData();
   }, [setError, setWaiting]);
 
+  // FUNCIÓN PARA SACAR NOMBRE DE LA POBLACIÓN SEGÚN LAS COORDENADAS DE LA UBICACIÓN
+  const getLocation = async ({ latitude, longitude }) => {
+    if (latitude && longitude) {
+      try {
+        setWaiting(true);
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude}
+            ,${longitude}
+            &key=AIzaSyD2njfNJUvwdj_NtKzCHYxs3mchC4uVGPs`
+        );
+
+        if (!response.ok) {
+          throw new Error("Error obteniendo la ubicación");
+        }
+
+        const json = await response.json();
+
+        setLocation(json.results[0].address_components[2].long_name);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setWaiting(false);
+      }
+    } else {
+      setWaiting(true);
+    }
+  };
+
   /* Función para cambiar la ciudad */
   const getCity = async ({ cityCode }) => {
+    if (!cityCode) {
+      console.log("entro");
+      let filtered = cities.filter((city) => {
+        return city.city.toLowerCase().includes(location.toLowerCase());
+      });
+      cityCode = filtered[0].id;
+    }
     try {
       setWaiting(true);
 
@@ -147,10 +180,12 @@ function WeatherContextProvider({ children }) {
 
         const json = await response.json();
 
-        if (json[0].nombre === "Coru�a, A") {
-          json[0].nombre = "A Coruña";
+        if ((json[0].nombre = "�")) {
+          let filtered = cities.filter((city) => {
+            return city.id.includes(json[0].id);
+          });
+          setCity(filtered[0].city);
         }
-        setCity(json[0].nombre);
 
         setData(json[0].prediccion.dia);
       } catch (error) {
@@ -165,7 +200,16 @@ function WeatherContextProvider({ children }) {
 
   return (
     <WeatherContext.Provider
-      value={{ data, city, getCity, dayNow, hourNow, cities }}
+      value={{
+        data,
+        city,
+        getLocation,
+        getCity,
+        dayNow,
+        hourNow,
+        cities,
+        location,
+      }}
     >
       {children}
     </WeatherContext.Provider>

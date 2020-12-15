@@ -6,20 +6,12 @@ import ImgWeather from "./ImgWeather";
 import Temperature from "./Temperature";
 import RainProbability from "./RainProbability";
 import ImgBackground from "./ImgBackground";
+
 import { WeatherContext } from "../context/WeatherContext";
 
 export default function WeatherData() {
   const { data, city, dayNow, hourNow } = useContext(WeatherContext);
   const weatherNow = data[0];
-  /*   navigator.geolocation.getCurrentPosition((position, PositionOptions) => {
-    PositionOptions = {
-      enableHighAccuracy: true,
-      timeout: 5000,
-      maximumAge: 0,
-    };
-    console.log(position);
-    console.log(position.coords.latitude, position.coords.longitude);
-  }); */
 
   return (
     <div>
