@@ -8,12 +8,18 @@ import cities from "../cities";
 
 const WeatherContext = createContext();
 
-const { REACT_APP_API_URL, REACT_APP_API_KEY, REACT_APP_HOST } = process.env;
+const {
+  REACT_APP_API_URL,
+  REACT_APP_API_KEY,
+  REACT_APP_API_GEO_URL,
+  REACT_APP_API_GEO_KEY,
+} = process.env;
 
 function WeatherContextProvider({ children }) {
   const { setWaiting, setError } = useContext(AppContext);
   const [data, setData] = useState([]);
   const [city, setCity] = useState([]);
+  const [cityCode, setCityCode] = useState(null);
   const [location, setLocation] = useState();
 
   const now = new Date();
@@ -23,8 +29,8 @@ function WeatherContextProvider({ children }) {
   // Este hook carga los datos del tiempo en Lugo por defecto
   useEffect(() => {
     let codeCity = [];
-    let number = 0;
-    let index = 1000;
+    /*     let number = 0;
+    let index = 1000; */
 
     async function getData() {
       try {
@@ -111,7 +117,43 @@ function WeatherContextProvider({ children }) {
         } catch (error) {
           setError(error.message);
         }
-        console.log(codeCity);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setWaiting(false);
+      }
+    }
+
+    async function getDataDay() {
+      try {
+        setWaiting(true);
+
+        const response = await fetch(
+          `${REACT_APP_API_URL}prediccion/especifica/municipio/horaria/27028/?api_key=${REACT_APP_API_KEY}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Error cargando datos");
+        }
+
+        const json = await response.json();
+
+        const url = json.datos;
+        try {
+          const response = await fetch(`${url}`);
+
+          if (!response.ok) {
+            throw new Error("Error cargando datos del tiempo");
+          }
+
+          const json = await response.json();
+
+          setCity(json[0].nombre);
+
+          setData(json[0].prediccion.dia);
+        } catch (error) {
+          setError(error.message);
+        }
       } catch (error) {
         setError(error.message);
       } finally {
@@ -119,45 +161,59 @@ function WeatherContextProvider({ children }) {
       }
     }
     getData();
-  }, [setError, setWaiting]);
+    getDataDay();
+  }, [setError, setWaiting, setCityCode]);
 
   // FUNCIÓN PARA SACAR NOMBRE DE LA POBLACIÓN SEGÚN LAS COORDENADAS DE LA UBICACIÓN
   const getLocation = async ({ latitude, longitude }) => {
-    if (latitude && longitude) {
-      try {
+    try {
+      /* SI NO SE RECIBE LATITUDE O LONGITUDE LANZAMOS UN ERROR */
+      if (!latitude || !longitude) {
         setWaiting(true);
-        const response = await fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude}
+        throw new Error("No se puede obtener tu ubicación en este momento");
+      } else {
+        try {
+          setWaiting(true);
+
+          /* HACEMOS PETICIÓN EN LA QUE PASAMOS LATITUDE Y LONGITUDE, SACAMOS LOS DATOS QUE NOS INTERESAN DE LA UBICACIÓN */
+          const response = await fetch(
+            `${REACT_APP_API_GEO_URL}${latitude}
             ,${longitude}
-            &key=AIzaSyD2njfNJUvwdj_NtKzCHYxs3mchC4uVGPs`
-        );
+            &key=${REACT_APP_API_GEO_KEY}`
+          );
 
-        if (!response.ok) {
-          throw new Error("Error obteniendo la ubicación");
+          if (!response.ok) {
+            throw new Error("Error obteniendo la ubicación");
+          }
+
+          const json = await response.json();
+
+          setLocation(json.results[0].address_components[2].long_name);
+
+          /* BUSCAMOS LA CIUDAD QUE COINCIDA CON LA DE LA GEOLOCALIZACIÓN Y GUARDAMOS SU CÓDIGO*/
+          let filtered = cities.filter((city) => {
+            return city.city
+              .toLowerCase()
+              .includes(
+                json.results[0].address_components[2].long_name.toLowerCase()
+              );
+          });
+          setCityCode(filtered[0].id);
+          setCity(filtered[0].provincia);
+          setError();
+        } catch (error) {
+          setError(error.message);
         }
-
-        const json = await response.json();
-
-        setLocation(json.results[0].address_components[2].long_name);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setWaiting(false);
       }
-    } else {
-      setWaiting(true);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setWaiting(false);
     }
   };
 
   /* Función para cambiar la ciudad */
   const getCity = async ({ cityCode }) => {
-    if (!cityCode) {
-      console.log("entro");
-      let filtered = cities.filter((city) => {
-        return city.city.toLowerCase().includes(location.toLowerCase());
-      });
-      cityCode = filtered[0].id;
-    }
     try {
       setWaiting(true);
 
@@ -185,6 +241,7 @@ function WeatherContextProvider({ children }) {
             return city.id.includes(json[0].id);
           });
           setCity(filtered[0].city);
+          setLocation(filtered[0].city);
         }
 
         setData(json[0].prediccion.dia);
@@ -209,6 +266,9 @@ function WeatherContextProvider({ children }) {
         hourNow,
         cities,
         location,
+        setLocation,
+        cityCode,
+        setCityCode,
       }}
     >
       {children}

@@ -12,7 +12,7 @@ export default function RainProbabipty({ rain, date, dayNow, hourNow }) {
         ) : hourNow >= 12 && hourNow < 18 ? (
           <p>Probabilidad precipitación: {rain[5].value}%</p>
         ) : (
-          <p>Probabilidad precipitación: {rain[6].value}%</p>
+          <p>Probabilidad precipitación: {rain.value}%</p>
         )
       ) : (
         <p>Probabilidad precipitación: {rain[0].value}%</p>

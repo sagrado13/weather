@@ -10,13 +10,13 @@ import ImgBackground from "./ImgBackground";
 import { WeatherContext } from "../context/WeatherContext";
 
 export default function WeatherData() {
-  const { data, city, dayNow, hourNow } = useContext(WeatherContext);
+  const { data, location, dayNow, hourNow } = useContext(WeatherContext);
   const weatherNow = data[0];
 
   return (
     <div>
       <ImgBackground skyState={weatherNow} hourNow={hourNow} />
-      <h3>Previsión para los próximos 7 días en {city}</h3>
+      <h3>Previsión para los próximos 7 días en {location}</h3>
       <ul className="weather-list">
         {data.map((item, index) => {
           return (
