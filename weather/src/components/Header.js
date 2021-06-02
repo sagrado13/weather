@@ -4,32 +4,19 @@ import { WeatherContext } from "../context/WeatherContext";
 
 export default function Header() {
   const {
-    getCity,
+    getCityDataSelected,
     cities,
     location,
     setLocation,
-    getLocation,
     cityCode,
     setCityCode,
+    citySelected,
+    setCitySelected,
   } = useContext(WeatherContext);
 
   const [nameProvince, setNameProvince] = useState(null);
-  const [latitude, setLatitude] = useState();
-  const [longitude, setLongitude] = useState();
-  const [repeat, setRepeat] = useState(0);
+
   let lastProvince;
-
-  /* SI EXISTE CITYCODE Y EL NÚMERO DE REPEAT ES MENOR A 1 SE EJECUTA LA FUNCIÓN GETCITY */
-  if (cityCode && repeat < 1) {
-    getCity({ cityCode });
-    setRepeat(repeat + 1);
-  }
-
-  navigator.geolocation.getCurrentPosition((position) => {
-    setLatitude(position.coords.latitude);
-    setLongitude(position.coords.longitude);
-    getLocation({ latitude, longitude });
-  });
 
   return (
     <header>
@@ -40,7 +27,8 @@ export default function Header() {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          getCity({ cityCode });
+          getCityDataSelected({ cityCode });
+
           /* setLocation(city.city); */
         }}
       >
@@ -65,7 +53,9 @@ export default function Header() {
             onChange={
               ((event) =>
                 setLocation(event.target[event.target.selectedIndex].label),
-              (e) => setCityCode(e.target.value))
+              (e) =>
+                setCityCode(e.target.value) &&
+                setCitySelected(!!e.target.value))
             }
           >
             <option value=""></option>
@@ -81,6 +71,7 @@ export default function Header() {
           </select>
         ) : null}
         <p>{cityCode}</p>
+        <p>{citySelected}</p>
         <button>Enviar</button>
       </form>
       {/*  {cityCode ? <p>O valor do select é {cityCode}</p> : null} */}

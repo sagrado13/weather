@@ -17,7 +17,8 @@ export default function ImgWeather({ skyState }) {
           alt="Sol"
         />
       ) : skyState[0].descripcion === "Muy nuboso" ||
-        skyState[0].descripcion === "Nuboso" ? (
+        skyState[0].descripcion === "Nuboso" ||
+        skyState[0].descripcion === "Cubierto" ? (
         <img
           className="img-weather"
           src={"/img/1146855-weather/svg/014-cloud.svg"}
